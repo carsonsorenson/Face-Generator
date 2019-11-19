@@ -3,9 +3,12 @@ import cv2
 import numpy as np
 from load_attributes import load_attributes_wrapper
 
+def normal_to_image(images):
+    return [((image + 1.0) * 127.5).astype(np.uint8) for image in images]
+
 
 def build_image_matrix(images, grid_size, output_file):
-    imgs = [cv2.imread(i) for i in images]
+    imgs = normal_to_image(images)
     img_h, img_w, img_c = imgs[0].shape
 
     margin_x = 5
@@ -24,18 +27,18 @@ def build_image_matrix(images, grid_size, output_file):
     cv2.imwrite(output_file, image_matrix)
 
 
-def load_real_images(data_dir, attributes=None):
+def load_real_images(data_dir, image_size, attributes=None):
     files = load_attributes_wrapper(data_dir, attributes)
-    print(len(files))
+    images = []
+    for file in files:
+        img = cv2.imread(file)
+        cropped_img = img[55:55+128, 30:30+128]
+        resized_im = cv2.resize(cropped_img, (image_size, image_size))
+        normalized_img = (resized_im / 127.5) - 1.0
+        images.append(normalized_img)
+    return images
 
-    build_image_matrix(files[:64], 8, 'test.png')
 
-
-
-def load_fake_images(num_images):
-    pass
-
-if __name__ == '__main__':
-    load_real_images('./data/')
-
+def load_fake_images(num_images, z_dim):
+    return np.random.uniform(-1, num_images, size=[3, z_dim])
 
