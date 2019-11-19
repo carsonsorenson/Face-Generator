@@ -12,11 +12,11 @@ def get_possible_traits():
     ]
 
 
-def parse_input(filename, image_path):
-    dirpath = os.getcwd()
-    filepath = os.path.join(dirpath, filename)
-    
-    assert os.path.exists(filepath), "Couldn't find attribute file"
+def parse_input(data_dir):
+    filepath = os.path.join(data_dir, 'labels.txt')
+    image_path = os.path.join(data_dir, 'images')
+
+    assert os.path.exists(filepath), "Couldn't find labels.txt file make sure its in the data directory"
 
     attributes = {}
     with open(filepath, 'r') as infile:
@@ -31,7 +31,7 @@ def parse_input(filename, image_path):
                 file_location = os.path.join(image_path, file_name)
                 this_attributes = info[1:]
                 attributes['all'].append(file_location)
-                for attribute, this_attribute in zip(attributes, this_attributes):
+                for attribute, this_attribute in zip(header, this_attributes):
                     if this_attribute == "1":
                         attributes[attribute].append(file_location)
     return attributes
@@ -47,9 +47,11 @@ def load_attributes(data, attributes):
     return set(parsed_attributes[0]).intersection(*parsed_attributes)
 
 
-def load_attributes_wrapper(attributes=None):
+def load_attributes_wrapper(data_dir, attributes=None):
     if attributes is None:
         attributes = {'all': True}
-    data = parse_input('list_attr_celeba.txt')
+    data = parse_input(data_dir)
+    for d in sorted(data):
+        print(d, len(data[d]))
     parsed_attributes = load_attributes(data, attributes)
     return list(parsed_attributes)

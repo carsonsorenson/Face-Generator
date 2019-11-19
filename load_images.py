@@ -1,7 +1,7 @@
 import itertools
 import cv2
 import numpy as np
-from load_input import load_attributes_wrapper
+from load_attributes import load_attributes_wrapper
 
 
 def build_image_matrix(images, grid_size, output_file):
@@ -24,12 +24,18 @@ def build_image_matrix(images, grid_size, output_file):
     cv2.imwrite(output_file, image_matrix)
 
 
-def load_real_images(attributes=None):
-    files = load_attributes_wrapper(attributes)
+def load_real_images(data_dir, attributes=None):
+    files = load_attributes_wrapper(data_dir, attributes)
+    print(len(files))
+
+    build_image_matrix(files[:64], 8, 'test.png')
 
 
 
 def load_fake_images(num_images):
     pass
+
+if __name__ == '__main__':
+    load_real_images('./data/')
 
 
