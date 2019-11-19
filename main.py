@@ -71,7 +71,7 @@ def save_plots(d_losses, g_losses, plot_directory):
     plt.plot(g_losses, label='Generator', alpha=0.6)
     plt.title("Losses")
     plt.legend()
-    plt.savefig(plot_directory + "losses.png")
+    plt.savefig(os.path.join(plot_directory, 'losses.png'))
     plt.show()
     plt.close()
 
@@ -115,8 +115,14 @@ def train():
                 batch_images = images[i * flags.batch_size:(i + 1) * flags.batch_size]
                 batch_z = load_fake_images(flags.batch_size, flags.noise_size)
 
-                _ = sess.run(d_opt, feed_dict={input_real: batch_images, input_z: batch_z, learning_rate: LR})
-                _ = sess.run(g_opt, feed_dict={input_real: batch_images, input_z: batch_z, learning_rate: LR})
+                _ = sess.run(
+                    d_opt,
+                    feed_dict={input_real: batch_images,input_z: batch_z, learning_rate: flags.learning_rate}
+                )
+                _ = sess.run(
+                    g_opt,
+                    feed_dict={input_real: batch_images, input_z: batch_z, learning_rate: flags.learning_rate}
+                )
                 d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
                 g_losses.append(g_loss.eval({input_z: batch_z}))
 
@@ -128,8 +134,8 @@ def train():
                       ", percent: " + str(round((len(images) - remaining_files) / len(images) * 100, 2)) +
                       ", remaining files in batch: " + str(remaining_files)
                       , sep=' ', end=' ', flush=True)
-        show_epoch(epoch, sess, d_losses, g_losses, input_z, input_real)
-
+            save_plots(d_losses, g_losses, flags.plot_directory)
+            save_collage(sess, epoch, input_z, flags.collage_directory, flags.grid_size, models)
 
 
 if __name__ == '__main__':
