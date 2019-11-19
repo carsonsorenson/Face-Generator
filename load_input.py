@@ -12,7 +12,7 @@ def get_possible_traits():
     ]
 
 
-def parse_input(filename):
+def parse_input(filename, image_path):
     dirpath = os.getcwd()
     filepath = os.path.join(dirpath, filename)
     
@@ -28,7 +28,7 @@ def parse_input(filename):
             elif i > 1:
                 info = line.strip().split(' ')
                 file_name = info[0]
-                file_location = os.path.join('./img_align_celeba', file_name)
+                file_location = os.path.join(image_path, file_name)
                 this_attributes = info[1:]
                 attributes['all'].append(file_location)
                 for attribute, this_attribute in zip(attributes, this_attributes):
@@ -53,7 +53,3 @@ def load_attributes_wrapper(attributes=None):
     data = parse_input('list_attr_celeba.txt')
     parsed_attributes = load_attributes(data, attributes)
     return list(parsed_attributes)
-
-
-if __name__ == '__main__':
-    main()
