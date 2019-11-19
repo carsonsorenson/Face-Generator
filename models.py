@@ -126,5 +126,4 @@ class Models:
                                      units=1,
                                      activation=None)
             output = tf.sigmoid(logits)
-            print(output)
             return output, logits
