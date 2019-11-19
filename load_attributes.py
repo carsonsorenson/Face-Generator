@@ -51,7 +51,5 @@ def load_attributes_wrapper(data_dir, attributes=None):
     if attributes is None:
         attributes = {'all': True}
     data = parse_input(data_dir)
-    for d in sorted(data):
-        print(d, len(data[d]))
     parsed_attributes = load_attributes(data, attributes)
     return list(parsed_attributes)
