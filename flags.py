@@ -8,11 +8,11 @@ class FLAGS:
         self.noise_size = 100
         self.learning_rate = 0.0002
         self.batch_size = 64
-        self.epochs = 20
+        self.epochs = 2000
         self.image_size = 64
         self.beta1 = 0.5
         self.label_smoothing = 0.9
-        self.dataset_size = 10000
+        self.dataset_size = 50000
         self.data_directory = './data'
 
         self.output_image_directory = os.path.join(os.getcwd(), 'samples')

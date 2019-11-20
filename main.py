@@ -101,7 +101,8 @@ def train():
     # get our optimizers
     d_opt, g_opt = model_optimizers(d_loss, g_loss, flags.learning_rate, flags.beta1)
 
-    images = load_real_images(flags.data_directory, flags.image_size, flags.dataset_size)
+    attributes = {'male': True, 'eyeglasses': True}
+    images = load_real_images(flags.data_directory, flags.image_size, flags.dataset_size, attributes=attributes)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())

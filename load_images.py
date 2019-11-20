@@ -29,6 +29,7 @@ def build_image_matrix(images, grid_size, output_file):
 
 def load_real_images(data_dir, image_size, dataset_size, attributes=None):
     files = load_attributes_wrapper(data_dir, attributes)
+    print(len(files))
     images = []
     for i, file in enumerate(files):
         if i == dataset_size:
