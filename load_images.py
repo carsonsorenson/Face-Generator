@@ -8,23 +8,28 @@ def normal_to_image(images):
 
 
 def build_image_matrix(images, grid_size, output_file):
-    imgs = normal_to_image(images)
-    img_h, img_w, img_c = imgs[0].shape
+    images = normal_to_image(images)
+    image_height, image_width, image_channel = images[0].shape
+    for img in images:
+        assert img.shape == images[0].shape, "All images need to be the same dimension"
 
+    # Put a little bit of whitespace around each image
     margin_x = 5
     margin_y = 5
 
-    image_matrix = np.zeros((img_h * grid_size + margin_y * (grid_size - 1),
-                             img_w * grid_size + margin_x * (grid_size - 1),
-                             img_c), np.uint8)
-    image_matrix.fill(255)
+    matrix_height = image_height * grid_size + margin_y * (grid_size - 1)
+    matrix_width = image_width * grid_size + margin_x * (grid_size - 1)
+    matrix = np.zeros((matrix_height, matrix_width, image_channel), np.uint8)
+    matrix.fill(255)
 
-    positions = itertools.product(range(grid_size), range(grid_size))
-    for (x_i, y_i), img in zip(positions, imgs):
-        x = x_i * (img_w + margin_x)
-        y = y_i * (img_h + margin_y)
-        image_matrix[y:y+img_h, x:x+img_w, :] = img
-    cv2.imwrite(output_file, image_matrix)
+    index = 0
+    for i in range(grid_size):
+        for j in range(grid_size):
+            x = i * (image_width + margin_x)
+            y = j * (image_height + margin_y)
+            matrix[y:y+image_height, x:x+image_width, :] = images[index]
+            index += 1
+    cv2.imwrite(output_file, matrix)
 
 
 def load_real_images(data_dir, image_size, dataset_size, attributes=None):
