@@ -1,9 +1,10 @@
 import tensorflow as tf
-from load_images import load_real_images, load_fake_images, build_image_matrix, normal_to_image
+from load_images import load_real_images, load_fake_images
+from save_results import save_collage, save_fixed_images, save_plots
 from models import Models
 import random
-import matplotlib.pyplot as plt
 import os
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 
 def model_optimizers(d_loss, g_loss, lr_dis, lr_gen, beta1):
@@ -57,36 +58,12 @@ def model_loss(input_real, input_z, label_smoothing, models):
     return d_loss, g_loss
 
 
-# create tensors for model
 def model_inputs(real_dim, z_dim):
     input_real = tf.placeholder(tf.float32, (None, *real_dim), name='input_real')
     input_z = tf.placeholder(tf.float32, (None, z_dim), name='input_z')
     lr_dis = tf.placeholder(tf.float32, name='lr_dis')
     lr_gen = tf.placeholder(tf.float32, name='lr_gen')
     return input_real, input_z, lr_dis, lr_gen
-
-
-def save_plots(d_losses, g_losses, plot_directory):
-    plt.plot(d_losses, label='Discriminator', alpha=0.6)
-    plt.plot(g_losses, label='Generator', alpha=0.6)
-    plt.title("Losses")
-    plt.legend()
-    plt.savefig(os.path.join(plot_directory, 'losses.png'))
-    plt.show()
-    plt.close()
-
-
-def save_collage(sess, epoch, input_z, collage_directory, grid_size, models):
-    test_z = load_fake_images(grid_size * grid_size, input_z.get_shape().as_list()[-1])
-    samples = sess.run(models.generator(input_z, False), feed_dict={input_z: test_z})
-
-    name = 'collage_' + str(epoch) + '.png'
-    build_image_matrix(samples, grid_size, os.path.join(collage_directory, name))
-
-
-def save_fixed(fixed_images):
-
-
 
 
 def print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files):
@@ -145,18 +122,27 @@ def train(flags, model_name, load=False, attributes=None):
                     feed_dict={input_real: batch_images, input_z: batch_z, lr_gen: flags.lr_generator}
                 )
 
-                if iteration % 50 == 0 or iteration == 1:
-                    d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
-                    g_losses.append(g_loss.eval({input_z: batch_z}))
-
-                fixed_samples = sess.run(models.generator(input_z, False), feed_dict={input_z: fixed_z})
-                save_fixed(fixed_samples)
-
+                d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
+                g_losses.append(g_loss.eval({input_z: batch_z}))
 
                 remaining_files = len(images) - ((i + 1) * flags.batch_size)
                 percent = (len(images) - remaining_files) / len(images) * 100
                 print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files)
 
-            save_plots(d_losses, g_losses, flags.plot_directory)
-            save_collage(sess, epoch, input_z, flags.collage_directory, flags.grid_size, models)
+                # Save the progress of our fixed noises to see how the model is updating
+                if (iteration - 1) % flags.fixed_frequency == 0:
+                    fixed_samples = sess.run(models.generator(input_z, False), feed_dict={input_z: fixed_z})
+                    fixed_index = (iteration - 1) // flags.fixed_frequency
+                    save_fixed_images(fixed_samples, model_name, fixed_index, flags.fixed_z_directory)
+
+            # save the loss plots
+            save_plots(d_losses, g_losses, flags.plot_directory, model_name)
+
+            # create images from generator to create a collage of images
+            collage_size = flags.grid_size * flags.grid_size
+            test_z = load_fake_images(collage_size, flags.noise_size)
+            samples = sess.run(models.generator(input_z, False), feed_dict={input_z: test_z})
+            name = 'collage_' + model_name + '_' + str(epoch) + '.png'
+            save_collage(samples, collage_size, os.path.join(flags.collage_directory, name))
+
             saver.save(sess, model_path)

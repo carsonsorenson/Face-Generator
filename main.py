@@ -3,7 +3,8 @@ from training import train
 
 
 def train_all_images(flags):
-    train(flags, 'all', load=False)
+    attributes = {'male': True}
+    train(flags, 'male', load=False, attributes=attributes)
 
 
 def main():
