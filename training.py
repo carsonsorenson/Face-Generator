@@ -143,6 +143,6 @@ def train(flags, model_name, load=False, attributes=None):
             test_z = load_fake_images(collage_size, flags.noise_size)
             samples = sess.run(models.generator(input_z, False), feed_dict={input_z: test_z})
             name = 'collage_' + model_name + '_' + str(epoch) + '.png'
-            save_collage(samples, collage_size, os.path.join(flags.collage_directory, name))
+            save_collage(samples, flags.grid_size, os.path.join(flags.collage_directory, name))
 
             saver.save(sess, model_path)
