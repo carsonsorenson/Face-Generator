@@ -1,5 +1,5 @@
 import tensorflow as tf
-from load_images import load_real_images, load_fake_images, build_image_matrix
+from load_images import load_real_images, load_fake_images, build_image_matrix, normal_to_image
 from models import Models
 import random
 import matplotlib.pyplot as plt
@@ -84,9 +84,24 @@ def save_collage(sess, epoch, input_z, collage_directory, grid_size, models):
     build_image_matrix(samples, grid_size, os.path.join(collage_directory, name))
 
 
+def save_fixed(fixed_images):
+
+
+
+
+def print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files):
+    print("\rEpoch: " + str(epoch) +
+          ", iteration: " + str(iteration) +
+          ", discriminator loss: " + str(round(d_losses[-1], 3)) +
+          ", generator loss: " + str(round(g_losses[-1], 3)) +
+          ", percent of files processed: " + str(round(percent, 2)) +
+          ", remaining files in batch: " + str(remaining_files)
+          , sep=' ', end=' ', flush=True)
+
+
 def train(flags, model_name, load=False, attributes=None):
     # set up model name to save/load
-    model_name = os.path.join(flags.model_directory, model_name + 'ckpt')
+    model_path = os.path.join(flags.model_directory, model_name + '.ckpt')
 
     # load discriminator and generator models
     models = Models(flags.momentum, flags.init_weight_stddev, flags.epsilon, flags.image_size)
@@ -103,11 +118,14 @@ def train(flags, model_name, load=False, attributes=None):
     # load in our data
     images = load_real_images(flags.data_directory, flags.image_size, flags.dataset_size, attributes)
 
+    # create fixed noise arrays
+    fixed_z = load_fake_images(flags.fixed_amount, flags.noise_size)
+
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
         if load:
-            saver.restore(sess, model_name)
+            saver.restore(sess, model_path)
         d_losses = []
         g_losses = []
         iteration = 0
@@ -120,23 +138,25 @@ def train(flags, model_name, load=False, attributes=None):
 
                 _ = sess.run(
                     d_opt,
-                    feed_dict={input_real: batch_images,input_z: batch_z, lr_dis: flags.lr_discriminator}
+                    feed_dict={input_real: batch_images, input_z: batch_z, lr_dis: flags.lr_discriminator}
                 )
                 _ = sess.run(
                     g_opt,
                     feed_dict={input_real: batch_images, input_z: batch_z, lr_gen: flags.lr_generator}
                 )
-                d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
-                g_losses.append(g_loss.eval({input_z: batch_z}))
+
+                if iteration % 50 == 0 or iteration == 1:
+                    d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
+                    g_losses.append(g_loss.eval({input_z: batch_z}))
+
+                fixed_samples = sess.run(models.generator(input_z, False), feed_dict={input_z: fixed_z})
+                save_fixed(fixed_samples)
+
 
                 remaining_files = len(images) - ((i + 1) * flags.batch_size)
-                print("\rEpoch: " + str(epoch) +
-                      ", iteration: " + str(iteration) +
-                      ", d_loss: " + str(round(d_losses[-1], 3)) +
-                      ", g_loss: " + str(round(g_losses[-1], 3)) +
-                      ", percent: " + str(round((len(images) - remaining_files) / len(images) * 100, 2)) +
-                      ", remaining files in batch: " + str(remaining_files)
-                      , sep=' ', end=' ', flush=True)
+                percent = (len(images) - remaining_files) / len(images) * 100
+                print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files)
+
             save_plots(d_losses, g_losses, flags.plot_directory)
             save_collage(sess, epoch, input_z, flags.collage_directory, flags.grid_size, models)
-            saver.save(sess, model_name)
+            saver.save(sess, model_path)

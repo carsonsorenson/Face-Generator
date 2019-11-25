@@ -16,16 +16,17 @@ class FLAGS:
         self.momentum = 0.9
         self.noise_size = 100
         self.lr_generator = 0.0002
-        self.lr_discriminator = 0.00005
-        self.batch_size = 64
+        self.lr_discriminator = 0.0002
+        self.batch_size = 128
         self.epochs = 2000
         self.image_size = 64
         self.beta1 = 0.5
         self.label_smoothing = 0.9
-        self.dataset_size = math.inf
-        self.gird_size = 5
+        #self.dataset_size = math.inf
+        self.dataset_size = 5000
+        self.grid_size = 6
         self.fixed_frequency = 50
-        self.fixed_amount = 10
+        self.fixed_amount = 100
 
         self.create_directories()
 

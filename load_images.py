@@ -1,7 +1,7 @@
-import itertools
 import cv2
 import numpy as np
 from load_attributes import load_attributes_wrapper
+
 
 def normal_to_image(images):
     return [((image + 1.0) * 127.5).astype(np.uint8) for image in images]
@@ -14,8 +14,8 @@ def build_image_matrix(images, grid_size, output_file):
         assert img.shape == images[0].shape, "All images need to be the same dimension"
 
     # Put a little bit of whitespace around each image
-    margin_x = 5
-    margin_y = 5
+    margin_x = 3
+    margin_y = 3
 
     matrix_height = image_height * grid_size + margin_y * (grid_size - 1)
     matrix_width = image_width * grid_size + margin_x * (grid_size - 1)

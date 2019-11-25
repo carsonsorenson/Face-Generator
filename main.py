@@ -1,8 +1,9 @@
 from flags import FLAGS
 from training import train
 
+
 def train_all_images(flags):
-    train(flags, 'all')
+    train(flags, 'all', load=False)
 
 
 def main():
