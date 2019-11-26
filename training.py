@@ -59,7 +59,7 @@ def model_loss(input_real, input_z, label_smoothing, models):
 
 
 def model_inputs(real_dim, z_dim):
-    input_real = tf.placeholder(tf.float32, (None, (real_dim, real_dim, 3)), name='input_real')
+    input_real = tf.placeholder(tf.float32, (None, real_dim, real_dim, 3), name='input_real')
     input_z = tf.placeholder(tf.float32, (None, z_dim), name='input_z')
     lr_dis = tf.placeholder(tf.float32, name='lr_dis')
     lr_gen = tf.placeholder(tf.float32, name='lr_gen')
