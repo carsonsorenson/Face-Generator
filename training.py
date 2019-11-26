@@ -106,7 +106,9 @@ def train(flags, model_name, load=False, attributes=None):
         d_losses = []
         g_losses = []
         iteration = 0
-        for epoch in range(1, flags.epochs + 1):
+        epoch = 0
+        while iteration < flags.iterations:
+            epoch += 1
             random.shuffle(images)
             for i in range(len(images) // flags.batch_size):
                 iteration += 1
@@ -142,7 +144,7 @@ def train(flags, model_name, load=False, attributes=None):
             collage_size = flags.grid_size * flags.grid_size
             test_z = load_fake_images(collage_size, flags.noise_size)
             samples = sess.run(models.generator(input_z, False), feed_dict={input_z: test_z})
-            name = 'collage_' + model_name + '_' + str(epoch) + '.png'
+            name = 'collage_' + model_name + '_' + str(epoch).zfill(5) + '.png'
             save_collage(samples, flags.grid_size, os.path.join(flags.collage_directory, name))
 
             saver.save(sess, model_path)

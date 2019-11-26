@@ -1,6 +1,7 @@
 import os
 import math
 
+
 class FLAGS:
     def __init__(self):
         self.project_directory = os.getcwd()
@@ -18,16 +19,16 @@ class FLAGS:
         self.lr_generator = 0.0002
         self.lr_discriminator = 0.0002
         self.batch_size = 128
-        self.epochs = 2000
+        #self.epochs = 2000
+        self.iterations = 50000
         self.image_size = 64
         self.beta1 = 0.5
         self.label_smoothing = 0.9
-        #self.dataset_size = math.inf
-        self.dataset_size = 5000
+        self.dataset_size = math.inf
+        #self.dataset_size = 500
         self.grid_size = 6
-        self.fixed_frequency = 50
-        self.fixed_amount = 100
-
+        self.fixed_frequency = 100
+        self.fixed_amount = 10
         self.create_directories()
 
     def create_directories(self):

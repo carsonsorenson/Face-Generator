@@ -37,17 +37,34 @@ def save_fixed_images(images, model_name, iteration, directory):
     images = normal_to_image(images)
     for index, image in enumerate(images):
         image = cv2.resize(image, (256, 256))
-        filename = 'fixed_' + model_name + '_' + str(iteration) + '_' + str(index) + '.png'
+        filename = 'fixed_' + model_name + '_' + str(iteration).zfill(5) + '_' + str(index + 1) + '.png'
         path = os.path.join(directory, filename)
         cv2.imwrite(path, image)
 
 
 def save_plots(d_losses, g_losses, plot_directory, model_name):
-    plt.plot(d_losses, label='Discriminator', alpha=0.6)
-    plt.plot(g_losses, label='Generator', alpha=0.6)
+    plt.plot(d_losses, label="Discriminator", color="#000000")
+    plt.title("Discriminator Losses")
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss Value')
+    name = "losses_discriminator_" + model_name + '.png'
+    plt.savefig(os.path.join(plot_directory, name))
+    plt.close()
+
+    plt.plot(g_losses, label="Generator", color="#FF0000")
+    plt.title("Generator Losses")
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss Value')
+    name = 'losses_generator_' + model_name + '.png'
+    plt.savefig(os.path.join(plot_directory, name))
+    plt.close()
+
+    plt.plot(d_losses, label='Discriminator', color="#000000", alpha=0.5)
+    plt.plot(g_losses, label='Generator', color="#FF0000", alpha=0.5)
     plt.title("Losses")
+    plt.xlabel('Iteration')
+    plt.ylabel('Loss Value')
     plt.legend()
     name = 'losses_' + model_name + '.png'
     plt.savefig(os.path.join(plot_directory, name))
-    plt.show()
     plt.close()
