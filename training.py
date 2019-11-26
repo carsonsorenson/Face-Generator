@@ -28,7 +28,7 @@ def model_loss(input_real, input_z, label_smoothing, models):
     # The loss of discriminator when using real images
     d_model_real, d_logits_real = models.discriminator(input_real, reuse=False)
 
-    # The loss of the discrimator when using fake images
+    # The loss of the discriminator when using fake images
     d_model_fake, d_logits_fake = models.discriminator(g_model, reuse=True)
 
     # calculate the loss for the real and fake images
@@ -59,7 +59,7 @@ def model_loss(input_real, input_z, label_smoothing, models):
 
 
 def model_inputs(real_dim, z_dim):
-    input_real = tf.placeholder(tf.float32, (None, *real_dim), name='input_real')
+    input_real = tf.placeholder(tf.float32, (None, (real_dim, real_dim, 3)), name='input_real')
     input_z = tf.placeholder(tf.float32, (None, z_dim), name='input_z')
     lr_dis = tf.placeholder(tf.float32, name='lr_dis')
     lr_gen = tf.placeholder(tf.float32, name='lr_gen')
@@ -84,7 +84,7 @@ def train(flags, model_name, load=False, attributes=None):
     models = Models(flags.momentum, flags.init_weight_stddev, flags.epsilon, flags.image_size)
 
     # get the tensorflow inputs
-    input_real, input_z, lr_dis, lr_gen = model_inputs((flags.image_size, flags.image_size, 3), flags.noise_size)
+    input_real, input_z, lr_dis, lr_gen = model_inputs(flags.image_size, flags.noise_size)
 
     # get our loss variables
     d_loss, g_loss = model_loss(input_real, input_z, flags.label_smoothing, models)
@@ -115,14 +115,11 @@ def train(flags, model_name, load=False, attributes=None):
                 batch_images = images[i * flags.batch_size:(i + 1) * flags.batch_size]
                 batch_z = load_fake_images(flags.batch_size, flags.noise_size)
 
-                _ = sess.run(
-                    d_opt,
-                    feed_dict={input_real: batch_images, input_z: batch_z, lr_dis: flags.lr_discriminator}
-                )
-                _ = sess.run(
-                    g_opt,
-                    feed_dict={input_real: batch_images, input_z: batch_z, lr_gen: flags.lr_generator}
-                )
+                d_feed_dict = {input_real: batch_images, input_z: batch_z, lr_dis: flags.lr_discriminator}
+                _ = sess.run(d_opt, feed_dict=d_feed_dict)
+
+                g_feed_dict = {input_real: batch_images, input_z: batch_z, lr_gen: flags.lr_generator}
+                _ = sess.run(g_opt, feed_dict=g_feed_dict)
 
                 d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
                 g_losses.append(g_loss.eval({input_z: batch_z}))
@@ -132,19 +129,20 @@ def train(flags, model_name, load=False, attributes=None):
                 print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files)
 
                 # Save the progress of our fixed noises to see how the model is updating
-                if (iteration - 1) % flags.fixed_frequency == 0:
+                if flags.visualize_progress and (iteration - 1) % flags.fixed_frequency == 0:
                     fixed_samples = sess.run(models.generator(input_z, False), feed_dict={input_z: fixed_z})
                     fixed_index = (iteration - 1) // flags.fixed_frequency
                     save_fixed_images(fixed_samples, model_name, fixed_index, flags.fixed_z_directory)
 
-            # save the loss plots
-            save_plots(d_losses, g_losses, flags.plot_directory, model_name)
+            if flags.visualize_progress:
+                # save the loss plots
+                save_plots(d_losses, g_losses, flags.plot_directory, model_name)
 
-            # create images from generator to create a collage of images
-            collage_size = flags.grid_size * flags.grid_size
-            test_z = load_fake_images(collage_size, flags.noise_size)
-            samples = sess.run(models.generator(input_z, False), feed_dict={input_z: test_z})
-            name = 'collage_' + model_name + '_' + str(epoch).zfill(5) + '.png'
-            save_collage(samples, flags.grid_size, os.path.join(flags.collage_directory, name))
+                # create images from generator to create a collage of images
+                collage_size = flags.grid_size * flags.grid_size
+                test_z = load_fake_images(collage_size, flags.noise_size)
+                samples = sess.run(models.generator(input_z, False), feed_dict={input_z: test_z})
+                name = 'collage_' + model_name + '_' + str(epoch).zfill(5) + '.png'
+                save_collage(samples, flags.grid_size, os.path.join(flags.collage_directory, name))
 
             saver.save(sess, model_path)
