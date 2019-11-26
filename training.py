@@ -4,6 +4,9 @@ from save_results import save_collage, save_fixed_images, save_plots
 from models import Models
 import random
 import os
+import time
+import datetime
+
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 
@@ -66,17 +69,20 @@ def model_inputs(real_dim, z_dim):
     return input_real, input_z, lr_dis, lr_gen
 
 
-def print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files):
+def print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files, seconds):
     print("\rEpoch: " + str(epoch) +
           ", iteration: " + str(iteration) +
-          ", discriminator loss: " + str(round(d_losses[-1], 3)) +
-          ", generator loss: " + str(round(g_losses[-1], 3)) +
-          ", percent of files processed: " + str(round(percent, 2)) +
-          ", remaining files in batch: " + str(remaining_files)
-          , sep=' ', end=' ', flush=True)
+          ", d_loss: " + str(round(d_losses[-1], 3)) +
+          ", g_loss: " + str(round(g_losses[-1], 3)) +
+          ", epoch percent: " + str(round(percent, 2)) +
+          ", files left in epoch: " + str(remaining_files) +
+          ", total training time left: " + str(datetime.timedelta(seconds=seconds))
+          , sep=' ', end='', flush=True)
 
 
 def train(flags, model_name, load=False, attributes=None):
+    tf.reset_default_graph()
+
     # set up model name to save/load
     model_path = os.path.join(flags.model_directory, model_name + '.ckpt')
 
@@ -111,6 +117,7 @@ def train(flags, model_name, load=False, attributes=None):
             epoch += 1
             random.shuffle(images)
             for i in range(len(images) // flags.batch_size):
+                start_time = time.time()
                 iteration += 1
                 batch_images = images[i * flags.batch_size:(i + 1) * flags.batch_size]
                 batch_z = load_fake_images(flags.batch_size, flags.noise_size)
@@ -124,9 +131,11 @@ def train(flags, model_name, load=False, attributes=None):
                 d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
                 g_losses.append(g_loss.eval({input_z: batch_z}))
 
+                total_time = time.time() - start_time
+                seconds_remaining = round(total_time * (flags.iterations - iteration))
                 remaining_files = len(images) - ((i + 1) * flags.batch_size)
                 percent = (len(images) - remaining_files) / len(images) * 100
-                print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files)
+                print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files, seconds_remaining)
 
                 # Save the progress of our fixed noises to see how the model is updating
                 if flags.visualize_progress and (iteration - 1) % flags.fixed_frequency == 0:

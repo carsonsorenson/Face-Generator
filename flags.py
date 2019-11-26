@@ -12,7 +12,7 @@ class FLAGS:
         self.lr_generator = 0.0002
         self.lr_discriminator = 0.0002
         self.batch_size = 128
-        self.iterations = 50000
+        self.iterations = 10000
         self.image_size = 64
         self.beta1 = 0.5
         self.label_smoothing = 0.9

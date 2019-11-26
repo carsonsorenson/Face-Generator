@@ -37,7 +37,7 @@ def save_fixed_images(images, model_name, iteration, directory):
     images = normal_to_image(images)
     for index, image in enumerate(images):
         image = cv2.resize(image, (256, 256))
-        filename = 'fixed_' + model_name + '_' + str(iteration).zfill(5) + '_' + str(index + 1) + '.png'
+        filename = 'fixed_' + model_name + '_' + str(iteration).zfill(5) + '_' + str(index).zfill(5) + '.png'
         path = os.path.join(directory, filename)
         cv2.imwrite(path, image)
 
