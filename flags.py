@@ -15,7 +15,6 @@ class FLAGS:
         self.iterations = 10000
         self.image_size = 64
         self.beta1 = 0.5
-        self.label_smoothing = 0.9
         self.dataset_size = math.inf
         #self.dataset_size = 500
 

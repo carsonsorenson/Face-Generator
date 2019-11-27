@@ -12,8 +12,8 @@ def train_one_attribute(flags):
     attributes = {'male': True}
     train(flags, 'male', load=False, attributes=attributes)
 
-    attributes = {'male': False}
-    train(flags, 'female', load=False, attributes=attributes)
+    #attributes = {'male': False}
+    #train(flags, 'female', load=False, attributes=attributes)
 
 
 # Add two attributes, in this case use gender and hair color

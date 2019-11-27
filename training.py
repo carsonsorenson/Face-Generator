@@ -19,12 +19,13 @@ def model_optimizers(d_loss, g_loss, lr_dis, lr_gen, beta1):
     gen_updates = [op for op in update_ops if op.name.startswith('generator') or op.name.startswith('discriminator')]
 
     with tf.control_dependencies(gen_updates):
+        #d_train_opt = tf.train.GradientDescentOptimizer(learning_rate=lr_dis).minimize(d_loss, var_list=d_vars)
         d_train_opt = tf.train.AdamOptimizer(learning_rate=lr_dis, beta1=beta1).minimize(d_loss, var_list=d_vars)
         g_train_opt = tf.train.AdamOptimizer(learning_rate=lr_gen, beta1=beta1).minimize(g_loss, var_list=g_vars)
     return d_train_opt, g_train_opt
 
 
-def model_loss(input_real, input_z, label_smoothing, models):
+def model_loss(input_real, input_z, models):
     # The loss of the generator
     g_model = models.generator(input_z, True)
 
@@ -38,13 +39,13 @@ def model_loss(input_real, input_z, label_smoothing, models):
     d_loss_real = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_real,
-            labels=tf.ones_like(d_model_real) * label_smoothing
+            labels=tf.ones_like(d_model_real) * random.uniform(0.7, 1.2)
         )
     )
     d_loss_fake = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_fake,
-            labels=tf.zeros_like(d_model_fake)
+            labels=tf.zeros_like(d_model_fake) + random.uniform(0.0, 0.3)
         )
     )
     # the total loss is the two added together
@@ -54,7 +55,7 @@ def model_loss(input_real, input_z, label_smoothing, models):
     g_loss = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_fake,
-            labels=tf.ones_like(d_model_fake) * label_smoothing
+            labels=tf.ones_like(d_model_fake)
         )
     )
 
@@ -80,7 +81,7 @@ def print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files
           , sep=' ', end='', flush=True)
 
 
-def train(flags, model_name, load=False, attributes=None):
+def train(flags, model_name, load=False, iteration=0, epoch=0, attributes=None):
     tf.reset_default_graph()
 
     # set up model name to save/load
@@ -93,7 +94,7 @@ def train(flags, model_name, load=False, attributes=None):
     input_real, input_z, lr_dis, lr_gen = model_inputs(flags.image_size, flags.noise_size)
 
     # get our loss variables
-    d_loss, g_loss = model_loss(input_real, input_z, flags.label_smoothing, models)
+    d_loss, g_loss = model_loss(input_real, input_z, models)
 
     # get our optimizers
     d_opt, g_opt = model_optimizers(d_loss, g_loss, flags.lr_discriminator, flags.lr_generator, flags.beta1)
@@ -111,9 +112,8 @@ def train(flags, model_name, load=False, attributes=None):
             saver.restore(sess, model_path)
         d_losses = []
         g_losses = []
-        iteration = 0
-        epoch = 0
-        while iteration < flags.iterations:
+        goal = flags.iterations + iteration
+        while iteration < goal:
             epoch += 1
             random.shuffle(images)
             for i in range(len(images) // flags.batch_size):
@@ -132,7 +132,7 @@ def train(flags, model_name, load=False, attributes=None):
                 g_losses.append(g_loss.eval({input_z: batch_z}))
 
                 total_time = time.time() - start_time
-                seconds_remaining = round(total_time * (flags.iterations - iteration))
+                seconds_remaining = round(total_time * (goal - iteration))
                 remaining_files = len(images) - ((i + 1) * flags.batch_size)
                 percent = (len(images) - remaining_files) / len(images) * 100
                 print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files, seconds_remaining)

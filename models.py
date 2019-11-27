@@ -26,7 +26,8 @@ class Models:
                                                      padding="same",
                                                      kernel_initializer=tf.truncated_normal_initializer(
                                                          stddev=self.init_weight_stddev))
-            batch_trans_conv1 = tf.layers.batch_normalization(inputs=trans_conv1,
+            dropout_1 = tf.nn.dropout(trans_conv1, keep_prob=0.5)
+            batch_trans_conv1 = tf.layers.batch_normalization(inputs=dropout_1,
                                                               momentum=self.momentum,
                                                               training=training,
                                                               epsilon=self.momentum)
@@ -40,7 +41,8 @@ class Models:
                                                      padding="same",
                                                      kernel_initializer=tf.truncated_normal_initializer(
                                                          stddev=self.init_weight_stddev))
-            batch_trans_conv2 = tf.layers.batch_normalization(inputs=trans_conv2,
+            dropout_2 = tf.nn.dropout(trans_conv2, keep_prob=0.5)
+            batch_trans_conv2 = tf.layers.batch_normalization(inputs=dropout_2,
                                                               momentum=self.momentum,
                                                               training=training,
                                                               epsilon=self.momentum)
@@ -54,7 +56,8 @@ class Models:
                                                      padding="same",
                                                      kernel_initializer=tf.truncated_normal_initializer(
                                                          stddev=self.init_weight_stddev))
-            batch_trans_conv3 = tf.layers.batch_normalization(inputs=trans_conv3,
+            dropout_3 = tf.nn.dropout(trans_conv3, keep_prob=0.5)
+            batch_trans_conv3 = tf.layers.batch_normalization(inputs=dropout_3,
                                                               momentum=self.momentum,
                                                               training=training,
                                                               epsilon=self.epsilon)
