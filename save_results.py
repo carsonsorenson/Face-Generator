@@ -59,8 +59,8 @@ def save_plots(d_losses, g_losses, plot_directory, model_name):
     plt.savefig(os.path.join(plot_directory, name))
     plt.close()
 
-    plt.plot(d_losses, label='Discriminator', color="#000000", alpha=0.5)
-    plt.plot(g_losses, label='Generator', color="#FF0000", alpha=0.5)
+    plt.plot(d_losses, label='Discriminator', color="#000000", alpha=0.6)
+    plt.plot(g_losses, label='Generator', color="#FF0000", alpha=0.6)
     plt.title("Losses")
     plt.xlabel('Iteration')
     plt.ylabel('Loss Value')

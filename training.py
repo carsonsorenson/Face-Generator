@@ -19,7 +19,6 @@ def model_optimizers(d_loss, g_loss, lr_dis, lr_gen, beta1):
     gen_updates = [op for op in update_ops if op.name.startswith('generator') or op.name.startswith('discriminator')]
 
     with tf.control_dependencies(gen_updates):
-        #d_train_opt = tf.train.GradientDescentOptimizer(learning_rate=lr_dis).minimize(d_loss, var_list=d_vars)
         d_train_opt = tf.train.AdamOptimizer(learning_rate=lr_dis, beta1=beta1).minimize(d_loss, var_list=d_vars)
         g_train_opt = tf.train.AdamOptimizer(learning_rate=lr_gen, beta1=beta1).minimize(g_loss, var_list=g_vars)
     return d_train_opt, g_train_opt
@@ -39,13 +38,13 @@ def model_loss(input_real, input_z, models):
     d_loss_real = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_real,
-            labels=tf.ones_like(d_model_real) * random.uniform(0.7, 1.2)
+            labels=tf.ones_like(d_model_real) * random.uniform(0.8, 1.0)
         )
     )
     d_loss_fake = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_fake,
-            labels=tf.zeros_like(d_model_fake) + random.uniform(0.0, 0.3)
+            labels=tf.zeros_like(d_model_fake)
         )
     )
     # the total loss is the two added together
