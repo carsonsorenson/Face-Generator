@@ -5,10 +5,10 @@ def get_possible_traits():
     return [
         'five_o_clock_shadow', 'arched_eyebrows', 'attractive', 'bags_under_eyes', 'bald', 'bangs', 'big_lips',
         'big_nose', 'black_hair', 'blonde_hair', 'blurry', 'brown_hair', 'bushy_eyebrows', 'chubby', 'double_chin',
-        'eyeglasses', 'goatee', 'gray_hair', 'heavy_makeup','high_cheekbones', 'male', 'mouth_slightly_open',
+        'eyeglasses', 'goatee', 'gray_hair', 'heavy_makeup', 'high_cheekbones', 'male', 'mouth_slightly_open',
         'mustache', 'narrow_eyes', 'no_beard', 'oval_face', 'pale_skin', 'pointy_nose', 'receding_hairline',
         'rosy_cheeks', 'sideburns', 'smiling', 'straight_hair', 'wavy_hair', 'wearing_earings', 'wearing_hat',
-        'wearing_lipstick', 'wearing_necklace', 'wearing_necktie', 'young'
+        'wearing_lipstick', 'wearing_necklace', 'wearing_necktie', 'young', 'all'
     ]
 
 
@@ -50,6 +50,10 @@ def load_attributes(data, attributes):
 def load_attributes_wrapper(data_dir, attributes=None):
     if attributes is None:
         attributes = {'all': True}
+    else:
+        all_attributes = get_possible_traits()
+        for attr in attributes:
+            assert attr in all_attributes, "Error {} is not a valid attribute".format(attr)
     data = parse_input(data_dir)
     parsed_attributes = load_attributes(data, attributes)
     return list(parsed_attributes)

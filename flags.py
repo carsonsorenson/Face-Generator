@@ -9,14 +9,12 @@ class FLAGS:
         self.init_weight_stddev = 0.02
         self.momentum = 0.9
         self.noise_size = 100
-        self.lr_generator = 0.0002
-        self.lr_discriminator = 0.0002
+        self.lr = 0.0002
         self.batch_size = 128
-        self.iterations = 10000
         self.image_size = 64
         self.beta1 = 0.5
         self.dataset_size = math.inf
-        #self.dataset_size = 500
+        self.epochs = 50
 
         if self.visualize_progress:
             self.project_directory = os.getcwd()
