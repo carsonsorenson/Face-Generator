@@ -95,7 +95,7 @@ def train(flags, model_name, load=False, iteration=0, epoch=0, attributes=None):
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
         if load:
-            model_path = os.path.join(flags.model_directory, model_name + '_' + str(epoch) + '.ckpt')
+            model_path = os.path.join(flags.model_directory, model_name + '.ckpt')
             saver.restore(sess, model_path)
         while epoch < flags.epochs:
             epoch += 1
