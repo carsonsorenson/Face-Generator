@@ -14,12 +14,12 @@ class FLAGS:
         self.image_size = 64
         self.beta1 = 0.5
         self.dataset_size = math.inf
-        self.epochs = 50
+        self.epochs = 100
+        self.project_directory = os.getcwd()
+        self.model_directory = os.path.join(self.project_directory, 'models')
 
         if self.visualize_progress:
-            self.project_directory = os.getcwd()
             self.data_directory = os.path.join(self.project_directory, 'data')
-            self.model_directory = os.path.join(self.project_directory, 'models')
             self.output_image_directory = os.path.join(self.project_directory, 'samples')
             self.plot_directory = os.path.join(self.output_image_directory, 'plots')
             self.collage_directory = os.path.join(self.output_image_directory, 'collage')

@@ -7,6 +7,7 @@ from flags import FLAGS
 import os
 import cv2
 import matplotlib.pyplot as plt
+import numpy as np
 
 flags = FLAGS(visualize_progress=False)
 
@@ -27,24 +28,30 @@ class CreateGraph:
     def run(self, z):
         with self.graph.as_default():
             samples = self.sess.run(self.models.generator(self.input_z, False), feed_dict={self.input_z: z})
-            img = normal_to_image(samples)[0]
-            img = cv2.resize(img, (256, 256))
-            return img
+            output, logits = self.sess.run(self.models.discriminator(self.input_real, True), feed_dict={self.input_real: samples})
+            best = np.where(output == max(output))[0][0]
+            image_array = normal_to_image(samples[best])
+            image = cv2.resize(image_array[0], (256, 256))
+            return image
 
 
-def generate():
-    options = [
+def get_options():
+    return [
         'all',
         'male',
         'female',
+        'eyeglasses',
         'black_hair_male',
         'blonde_hair_female',
-        'blonde_hair_male_smiling',
-        'black_hair_female_glasses'
     ]
+
+
+def generate():
+    options = get_options()
     input_string = ['(' + str(i) + '): ' + s.replace('_', ' ').title() for i, s in enumerate(options)]
     input_string.append('(Q): Quit')
     models = {key: CreateGraph(key) for key in options}
+    num_fake_images = 10
 
     while True:
         print("Select an image to generate")
@@ -52,10 +59,10 @@ def generate():
         val = input('>> ')
         if val == 'q' or val == 'Q':
             break
-        z = load_fake_images(1, flags.noise_size)
+        z = load_fake_images(num_fake_images, flags.noise_size)
         try:
             model = options[int(val)]
-            img = models[model].run(z)
+            img, img2 = models[model].run(z)
             plt.axis('off')
             plt.grid(b=None)
             plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
