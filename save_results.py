@@ -8,7 +8,7 @@ def normal_to_image(images):
     return [((image + 1.0) * 127.5).astype(np.uint8) for image in images]
 
 
-def save_collage(images, grid_size, output_file):
+def get_collage(images, grid_size):
     images = normal_to_image(images)
     image_height, image_width, image_channel = images[0].shape
     for img in images:
@@ -30,6 +30,11 @@ def save_collage(images, grid_size, output_file):
             y = j * (image_height + margin_y)
             matrix[y:y+image_height, x:x+image_width, :] = images[index]
             index += 1
+    return matrix
+
+
+def save_collage(images, grid_size, output_file):
+    matrix = get_collage(images, grid_size)
     cv2.imwrite(output_file, matrix)
 
 
