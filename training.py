@@ -36,13 +36,13 @@ def model_loss(input_real, input_z, models):
     d_loss_real = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_real,
-            labels=tf.ones_like(d_model_real) * random.uniform(0.8, 1.0)
+            labels=tf.ones_like(d_model_real) * random.uniform(0.7, 1.0)
         )
     )
     d_loss_fake = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_fake,
-            labels=tf.zeros_like(d_model_fake)
+            labels=tf.zeros_like(d_model_fake) + random.uniform(0.0, 0.2)
         )
     )
     # the total loss is the two added together
