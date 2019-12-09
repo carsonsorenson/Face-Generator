@@ -14,7 +14,7 @@ class FLAGS:
         self.image_size = 64
         self.beta1 = 0.5
         self.dataset_size = math.inf
-        self.epochs = 50
+        self.epochs = 60
         self.project_directory = os.getcwd()
         self.model_directory = os.path.join(self.project_directory, 'models')
         self.grid_size = 8

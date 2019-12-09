@@ -34,7 +34,6 @@ class Models:
                                                               epsilon=self.epsilon)
             trans_conv1_out = tf.nn.leaky_relu(batch_trans_conv1)
             assert trans_conv1_out.shape[1:] == (8, 8, 256)
-            #dropout_1 = tf.nn.dropout(trans_conv1_out, keep_prob=0.5)
 
             # 8x8x512 -> 16x16x256
             trans_conv2 = tf.layers.conv2d_transpose(inputs=trans_conv1_out,
@@ -50,7 +49,6 @@ class Models:
                                                               epsilon=self.epsilon)
             trans_conv2_out = tf.nn.leaky_relu(batch_trans_conv2)
             assert trans_conv2_out.shape[1:] == (16, 16, 128)
-            #dropout_2 = tf.nn.dropout(trans_conv2_out, keep_prob=0.5)
 
             # 16x16x256 -> 32x32x128
             trans_conv3 = tf.layers.conv2d_transpose(inputs=trans_conv2_out,
@@ -66,7 +64,6 @@ class Models:
                                                               epsilon=self.epsilon)
             trans_conv3_out = tf.nn.leaky_relu(batch_trans_conv3)
             assert trans_conv3_out.shape[1:] == (32, 32, 64)
-            #dropout_3 = tf.nn.dropout(trans_conv3_out, keep_prob=0.5)
 
             # 32x32x64 -> 64x64x3
             logits = tf.layers.conv2d_transpose(inputs=trans_conv3_out,

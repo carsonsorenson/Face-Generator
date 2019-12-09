@@ -22,15 +22,23 @@ class Graph:
                 self.saver.restore(self.sess, os.path.join(flags.model_directory, self.name + '.ckpt'))
 
     def single_image(self, z):
-        with self.graph.as_default():
-            samples = self.sess.run(self.models.generator(self.input_z, False), feed_dict={self.input_z: z})
-            output, logits = self.sess.run(self.models.discriminator(self.input_real, True), feed_dict={self.input_real: samples})
-            best = np.where(output == max(output))[0][0]
-            image = normal_to_image(samples[0][best])
-            return image
+        samples = self.generate(z)
+        output, _ = self.discriminate(samples)
+        best = np.where(output == max(output))[0][0]
+        image = normal_to_image(samples[0][best])
+        return image
 
     def collage(self, z):
+        samples = self.generate(z)
+        images = get_collage(samples, self.flags.grid_size)
+        return images
+
+    def generate(self, z):
         with self.graph.as_default():
             samples = self.sess.run(self.models.generator(self.input_z, False), feed_dict={self.input_z: z})
-            images = get_collage(samples, self.flags.grid_size)
-            return images
+            return samples
+
+    def discriminate(self, samples):
+        with self.graph.as_default():
+            output, _ = self.sess.run(self.models.discriminator(self.input_real, True), feed_dict={self.input_real: samples})
+            return output

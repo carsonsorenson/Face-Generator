@@ -110,6 +110,7 @@ def train(flags, model_name, load=False, iteration=0, epoch=0, attributes=None):
 
                 _ = sess.run(d_opt, feed_dict=d_feed_dict)
                 _ = sess.run(g_opt, feed_dict=g_feed_dict)
+                _ = sess.run(g_opt, feed_dict=g_feed_dict)
 
                 d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
                 g_losses.append(g_loss.eval({input_z: batch_z}))
@@ -119,12 +120,12 @@ def train(flags, model_name, load=False, iteration=0, epoch=0, attributes=None):
                 print_summary(epoch, iteration, d_losses, g_losses, percent, remaining_files)
 
                 # Save the progress of our fixed noises to see how the model is updating
-                if flags.visualize_progress and (iteration - 1) % flags.fixed_frequency == 0:
+                if flags.train and (iteration - 1) % flags.fixed_frequency == 0:
                     fixed_samples = sess.run(models.generator(input_z, False), feed_dict={input_z: fixed_z})
                     fixed_index = (iteration - 1) // flags.fixed_frequency
                     save_fixed_images(fixed_samples, model_name, fixed_index, flags.fixed_z_directory)
 
-            if flags.visualize_progress:
+            if flags.train:
                 # save the loss plots
                 save_plots(d_losses, g_losses, flags.plot_directory, model_name)
 
