@@ -36,13 +36,13 @@ def model_loss(input_real, input_z, models):
     d_loss_real = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_real,
-            labels=tf.ones_like(d_model_real) * random.uniform(0.7, 1.0)
+            labels=tf.ones_like(d_model_real) * random.uniform(0.8, 1.0)
         )
     )
     d_loss_fake = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_fake,
-            labels=tf.zeros_like(d_model_fake) + random.uniform(0.0, 0.2)
+            labels=tf.zeros_like(d_model_fake)
         )
     )
     # the total loss is the two added together
@@ -110,10 +110,18 @@ def train(flags, model_name, load=False, iteration=0, epoch=0, attributes=None):
 
                 _ = sess.run(d_opt, feed_dict=d_feed_dict)
                 _ = sess.run(g_opt, feed_dict=g_feed_dict)
-                _ = sess.run(g_opt, feed_dict=g_feed_dict)
 
-                d_losses.append(d_loss.eval({input_z: batch_z, input_real: batch_images}))
-                g_losses.append(g_loss.eval({input_z: batch_z}))
+                d_l = d_loss.eval({input_z: batch_z, input_real: batch_images})
+                g_l = g_loss.eval({input_z: batch_z})
+
+                # fix spikes in graph
+                if d_l > 5:
+                    d_l = 5
+                if g_l > 5:
+                    g_l = 5
+
+                d_losses.append(d_l)
+                g_losses.append(g_l)
 
                 remaining_files = len(images) - ((i + 1) * flags.batch_size)
                 percent = (len(images) - remaining_files) / len(images) * 100

@@ -26,5 +26,4 @@ def load_real_images(data_dir, image_size, dataset_size, attributes=None):
 
 def load_fake_images(num_images, z_dim):
     return np.random.normal(0, 1, size=[num_images, z_dim])
-    # return np.random.uniform(-1, 1, size=[num_images, z_dim])
 
