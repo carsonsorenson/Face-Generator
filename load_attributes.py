@@ -1,6 +1,7 @@
 import os
 
 
+# all possible attributes
 def get_possible_traits():
     return [
         'five_o_clock_shadow', 'arched_eyebrows', 'attractive', 'bags_under_eyes', 'bald', 'bangs', 'big_lips',
@@ -44,6 +45,10 @@ def load_attributes(data, attributes):
             parsed_attributes.append(data[var])
         else:
             parsed_attributes.append(set(data['all']) - set(data[var]))
+    # parsed_attributes is a 2d list where each element in the list is a list of values we desire, for example
+    # if the attributes are {'male': True, 'blonde_hair': True}, parsed_attributes has two values, a list of all image
+    # names that are males, and a list of all images that have blonde_hair, it then takes the intersection of that
+    # list to get all the attributes we want.
     return set(parsed_attributes[0]).intersection(*parsed_attributes)
 
 

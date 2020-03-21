@@ -32,7 +32,8 @@ def model_loss(input_real, input_z, models):
     # The loss of the discriminator when using fake images
     d_model_fake, d_logits_fake = models.discriminator(g_model, reuse=True)
 
-    # calculate the loss for the real and fake images
+    # calculate the loss for the real and fake images, use label smoothing!! this gives the discriminator some
+    # uncertainty and will cause the generator to perform better
     d_loss_real = tf.reduce_mean(
         tf.nn.sigmoid_cross_entropy_with_logits(
             logits=d_logits_real,

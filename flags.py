@@ -17,7 +17,7 @@ class FLAGS:
         self.epochs = 60
         self.project_directory = os.getcwd()
         self.model_directory = os.path.join(self.project_directory, 'models')
-        self.grid_size = 8
+        self.grid_size = 7
 
         if self.train:
             self.data_directory = os.path.join(self.project_directory, 'data')
